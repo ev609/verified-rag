@@ -4,10 +4,22 @@ version = "0.1.0"
 description = "Make your RAG bot cite every number and stop it hallucinating: cross-source reconciliation, period-aware verification, faithfulness scoring and inline citations."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "LicenseRef-Commercial" }
+license = { text = "MIT" }
 keywords = ["rag", "llm", "hallucination", "citations", "faithfulness", "verification", "ai"]
 authors = [{ name = "ev609" }]
 dependencies = []  # core is pure-stdlib
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 
 [project.optional-dependencies]
 llm = ["anthropic>=0.40"]      # only needed for natural-language claim extraction
@@ -15,6 +27,8 @@ dev = ["pytest>=7"]
 
 [project.urls]
 Homepage = "https://github.com/ev609/verified-rag"
+Repository = "https://github.com/ev609/verified-rag"
+Issues = "https://github.com/ev609/verified-rag/issues"
 
 [build-system]
 requires = ["setuptools>=68"]
