@@ -17,6 +17,8 @@ around it.
 > faithfulness from **32% → 60%** verified claims, with every verified number
 > carrying an inline source citation.
 
+![verified-rag catching a wrong-period claim](assets/demo.svg)
+
 ---
 
 ## What it does
