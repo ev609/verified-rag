@@ -17,6 +17,7 @@ What it does, with no vertical assumptions:
   * inline citation injection ``[src: source, period, trust 0.92]``
   * optional LLM extraction of natural-language claims ("doubled", "grew 3x")
 """
+from .adapters import facts_from_records
 from .citations import inject_citations
 from .claims import extract_numeric_claims, extract_period_hint, fact_key_period
 from .faithfulness import compare_modes, verify_answer
@@ -30,6 +31,7 @@ __version__ = "0.1.0"
 __all__ = [
     "Fact",
     "Claim",
+    "facts_from_records",
     "verify_answer",
     "compare_modes",
     "reconcile_facts",

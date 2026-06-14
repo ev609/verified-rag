@@ -1,5 +1,10 @@
 # verified-rag — stop your RAG bot from lying
 
+[![CI](https://github.com/ev609/verified-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/ev609/verified-rag/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
+![deps](https://img.shields.io/badge/core%20deps-0-brightgreen.svg)
+
 **A drop-in layer that checks every number your LLM produces against your
 sources, cites the ones it can prove, and flags the ones it can't.**
 
@@ -102,6 +107,32 @@ Or implement the 1-method `LLMExtractor` protocol for any model you like.
 
 ---
 
+## Works with your stack (LangChain, LlamaIndex, anything)
+
+The only glue is turning what your retriever returns into `Fact`s —
+`facts_from_records` does it with a tiny mapping (a field name, a callable, or a
+constant per field):
+
+```python
+from verified_rag import facts_from_records, verify_answer
+
+# LangChain
+docs = retriever.invoke(question)              # list[Document]
+facts = facts_from_records(
+    docs,
+    key=lambda d: d.metadata["metric"],
+    value=lambda d: d.metadata["value"],
+    source=lambda d: d.metadata.get("source", "retrieved"),
+    confidence=lambda d: d.metadata.get("score", 0.5),
+)
+report = verify_answer(llm_answer, facts)
+```
+
+LlamaIndex nodes, vector-store rows and API JSON map the same way. Runnable
+end-to-end example: [`examples/from_retrieved_docs.py`](examples/from_retrieved_docs.py).
+
+---
+
 ## Install
 
 ```bash
@@ -118,6 +149,7 @@ pip install "verified-rag[llm]"         # + anthropic for NL claim extraction
 | Function | Purpose |
 |---|---|
 | `verify_answer(answer, facts, ...)` | one call: reconcile → verify → cite |
+| `facts_from_records(records, ...)` | map retrieved docs/rows → `Fact`s |
 | `reconcile_facts(facts)` | cross-source consensus + conflicts |
 | `extract_numeric_claims(text)` | pull numbers + period context out of text |
 | `verify_claims_against_facts(claims, reconciled)` | period-aware matching |

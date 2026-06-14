@@ -73,6 +73,14 @@ def test_all_verified_claims_get_cited_even_when_adjacent():
     assert report["cited_answer"].count("[src:") == 3
 
 
+def test_citation_not_injected_inside_a_decimal():
+    # Regression: "$5.0B" must become "$5.0B [src..]", never "$5 [src..].0B".
+    facts = [Fact("arr_2024", 5.0, source="deck", confidence=0.8, unit="$B")]
+    report = verify_answer("In 2024, ARR reached $5.0B.", facts)
+    assert "$5.0B [src:" in report["cited_answer"]
+    assert ".0B" not in report["cited_answer"].split("[src:")[0][-3:]
+
+
 def test_extract_skips_years_and_citations():
     claims = extract_numeric_claims("In 2024 revenue hit $4.2B [src: x, trust 0.9].")
     values = [c.value for c in claims]

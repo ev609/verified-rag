@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .claims import extract_numeric_claims
+from .claims import _NUMBER_CLAIM_RE, extract_numeric_claims
 from .llm import LLMExtractor, merge_claims
 from .verify import verify_claims_against_facts
 
@@ -48,17 +48,24 @@ def inject_citations(
     out = text
     injected = already = 0
     for v in by_pos:
+        # Only regex claims carry a reliable position; LLM (natural-language)
+        # claims are counted toward faithfulness but not auto-cited.
+        if v.get("source") not in (None, "regex"):
+            continue
         pos = v.get("position", 0)
         match = v["match"]
-        value_str = (str(int(v["value"])) if float(v["value"]) == int(v["value"])
-                     else str(v["value"]).rstrip("0").rstrip("."))
 
-        # Insertion point = first boundary char after the number (+ its unit).
-        insertion = min(len(out), pos + len(value_str) + len(v.get("unit", "")))
-        for i in range(pos + len(value_str), min(len(out), pos + 60)):
-            if out[i] in (",", ".", "\n", ";", " "):
-                insertion = i
-                break
+        # Insertion point = real end of the number+unit in the text (re-match at
+        # pos). Reconstructing length from the parsed float breaks on "5.0" etc.
+        # Processing is position-DESC, so earlier positions never drift.
+        m = _NUMBER_CLAIM_RE.match(out, pos)
+        if not m:
+            continue
+        # The regex's \s* can swallow a trailing space into the match; back up
+        # over it so the citation sits flush against the number, not the word.
+        insertion = m.end()
+        while insertion > pos and out[insertion - 1].isspace():
+            insertion -= 1
 
         # Already cited? Only inspect a *tiny* window at the insertion point, so
         # a neighbouring claim's freshly-injected citation can't trip this.
